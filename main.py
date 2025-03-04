@@ -36,15 +36,21 @@ if not OPENAI_API_KEY:
 app = FastAPI(title="School Prospectus Processor", version="0.1.0")
 
 # Initialize Redis client using asyncio
-
-redis_client = redis.Redis(
+if "REDIS_PASSWORD" in os.environ:
+    redis_client = redis.Redis(
+        host=os.getenv("REDIS_HOST", "redis"),
+        port=6379,
+        password=os.getenv("REDIS_PASSWORD"),
+        db=0,
+        decode_responses=True
+    )  
+else: 
+    redis_client = redis.Redis(
     host=os.getenv("REDIS_HOST", "redis"),
     port=6379,
-    password=os.getenv("REDIS_PASSWORD"),
     db=0,
     decode_responses=True
-)
-
+    )
 
 # Reuse existing pdf processing function for background tasks
 async def process_pdf(file_data: dict) -> Optional[dict]:
